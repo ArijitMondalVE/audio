@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from src.agent import run_agent
 from src.utils.file_utils import generate_unique_name
-from src.utils.history import save_history, get_history_data
+from src.utils.history import save_history, get_history_data, clear_history
 
 app = FastAPI()
 
@@ -30,6 +30,11 @@ def history():
     return get_history_data()
 
 
+@app.delete("/history")
+def delete_history():
+    clear_history()
+    return {"message": "History cleared"}
+
 # 🎯 Old endpoint (kept for backward compatibility)
 @app.post("/generate-ad")
 def generate_ad(request: AdRequest):
@@ -46,17 +51,7 @@ def generate_ad(request: AdRequest):
         if "error" in result:
             return result
 
-        entry = {
-            "type": "ad",
-            "input": request.product,
-            "script": result["script"],
-            "voice_file": result["voice_file"],
-            "final_file": result["final_file"],
-            "timestamp": datetime.now().isoformat()
-        }
-
-        save_history(entry)
-
+        # History already saved by agent
         return result
 
     except Exception as e:
@@ -81,19 +76,7 @@ def agent(request: AgentRequest):
         if "error" in result:
             return result
 
-        # 🧾 Save history
-        entry = {
-            "type": "agent",
-            "input": request.input,
-            "intent": result["intent"],
-            "script": result["script"],
-            "voice_file": result["voice_file"],
-            "final_file": result["final_file"],
-            "timestamp": datetime.now().isoformat()
-        }
-
-        save_history(entry)
-
+        # History already saved by agent
         return result
 
     except Exception as e:

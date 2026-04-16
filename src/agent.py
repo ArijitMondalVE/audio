@@ -1,12 +1,16 @@
 # src/agent.py
 
+from datetime import datetime
+
 from src.script_generator import generate_script
 from src.voice_generator import generate_voice_segment
 from src.audio_merger import merge_audio, merge_voice_segments
 from src.music_handler.music_handler import get_music_by_context
 from src.music_handler.mood_detector import detect_mood
+from src.utils.history import save_history
 
 
+# 🧠 Detect intent
 def detect_intent(user_input: str) -> str:
     text = user_input.lower()
 
@@ -20,10 +24,9 @@ def detect_intent(user_input: str) -> str:
         return "ad"
 
 
-# 🎭 NEW: convert script → dialogue
+# 🎭 Convert script → dialogue
 def build_dialogue(script: str):
     lines = script.split("\n")
-
     dialogue = []
 
     for i, line in enumerate(lines):
@@ -34,7 +37,7 @@ def build_dialogue(script: str):
 
         speaker = None
 
-        # 🎯 Detect speaker from text
+        # 🎯 Detect speaker label (Customer: / Narrator:)
         if ":" in line:
             parts = line.split(":", 1)
             label = parts[0].lower().strip()
@@ -55,12 +58,17 @@ def build_dialogue(script: str):
 
     return dialogue
 
+
+# 🧠 Enhance text for natural speech
 def enhance_text(text: str) -> str:
     text = text.replace(",", "... ")
     text = text.replace(" and ", "... and ")
     return text
 
+
+# 🚀 MAIN AGENT FUNCTION
 def run_agent(user_input: str, voice_file: str, final_file: str):
+
     intent = detect_intent(user_input)
 
     # 🧠 Script generation
@@ -81,27 +89,31 @@ def run_agent(user_input: str, voice_file: str, final_file: str):
 
     segment_paths = []
 
-    # 🎙️ Generate multiple voice segments
+    # 🎙️ Generate voice segments
     for i, part in enumerate(dialogue):
         filename = f"segment_{i}.mp3"
 
-        # 🧠 enhance text BEFORE TTS
         enhanced = enhance_text(part["text"])
 
         path = generate_voice_segment(
-        text=enhanced,
-        speaker=part["speaker"],
-        filename=filename
-    )
+            text=enhanced,
+            speaker=part["speaker"],
+            filename=filename
+        )
 
         if not path:
+            # ❗ Save failure also
+            save_history({
+                "input": user_input,
+                "error": "Voice generation failed",
+                "timestamp": datetime.now().isoformat()
+            })
             return {"error": "Voice generation failed"}
 
         segment_paths.append(path)
 
-    # 🎧 Merge all voice segments
+    # 🎧 Merge dialogue
     texts = [part["text"] for part in dialogue]
-
     combined_voice = merge_voice_segments(segment_paths, texts)
 
     # 🎵 Music selection
@@ -109,6 +121,11 @@ def run_agent(user_input: str, voice_file: str, final_file: str):
     music_path = get_music_by_context(intent, mood)
 
     if not music_path:
+        save_history({
+            "input": user_input,
+            "error": "Music selection failed",
+            "timestamp": datetime.now().isoformat()
+        })
         return {"error": "Music selection failed"}
 
     # 🎧 Final merge
@@ -118,6 +135,23 @@ def run_agent(user_input: str, voice_file: str, final_file: str):
         output_filename=final_file
     )
 
+    # 🧾 Save history (SUCCESS CASE)
+    entry = {
+        "input": user_input,
+        "intent": intent,
+        "mood": mood,
+        "script": script,
+        "dialogue": dialogue,
+        "segments": len(segment_paths),
+        "final_file": final_path,
+        "timestamp": datetime.now().isoformat()
+    }
+
+    print("🔥 Saving history...")
+    save_history(entry)
+    print("✅ History saved!")
+
+    # 🎯 Response
     return {
         "intent": intent,
         "mood": mood,
