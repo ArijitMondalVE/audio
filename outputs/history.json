@@ -13,5 +13,20 @@
     "segments": 1,
     "final_file": "D:\\Projects\\audio-ai-lab\\outputs\\final\\final_20260416_152350_a77fba.mp3",
     "timestamp": "2026-04-16T15:24:04.015821"
+  },
+  {
+    "input": "Fpod delivery app ad",
+    "intent": "ad",
+    "mood": "upbeat",
+    "script": "Craving something tasty? Meet Fpod, the delivery app that brings local favorites to your door. Easy ordering, real-time tracking, and fast, friendly delivery. Your first order is on us. Download the app today and taste the difference. Fpod—delivering happiness, one delicious bite at a time.",
+    "dialogue": [
+      {
+        "speaker": "customer",
+        "text": "Craving something tasty? Meet Fpod, the delivery app that brings local favorites to your door. Easy ordering, real-time tracking, and fast, friendly delivery. Your first order is on us. Download the app today and taste the difference. Fpod—delivering happiness, one delicious bite at a time."
+      }
+    ],
+    "segments": 1,
+    "final_file": "D:\\Projects\\audio-ai-lab\\outputs\\final\\final_20260416_152516_afe59e.mp3",
+    "timestamp": "2026-04-16T15:25:30.545017"
   }
 ]
