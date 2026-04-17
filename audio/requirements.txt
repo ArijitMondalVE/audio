@@ -1,0 +1,11 @@
+fastapi
+gtts
+ipykernel
+langchain
+numpy
+openai
+pydub
+python-dotenv
+python-multipart
+requests
+uvicorn

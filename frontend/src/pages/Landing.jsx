@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Sidebar } from "../components/Sidebar";
 import Notification from "../components/Notification";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function Landing() {
     const [product, setProduct] = useState("");

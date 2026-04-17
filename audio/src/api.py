@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uuid
+from dotenv import load_dotenv
+import os
 from src.agent import run_agent
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -11,14 +13,17 @@ app = FastAPI()
 
 app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
 
+load_dotenv()
+
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[frontend_url],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # 📦 Request schemas
 class AdRequest(BaseModel):

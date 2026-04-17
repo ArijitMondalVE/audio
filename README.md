@@ -107,7 +107,7 @@ ELEVENLABS_API_KEY=your_elevenlabs_key
 ### 4. Run Backend
 
 ```bash
-uvicorn src.api:app --reload
+uv run uvicorn src.api:app --reload
 ```
 
 ---
